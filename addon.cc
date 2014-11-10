@@ -1,8 +1,6 @@
 #include <nan.h>
 #include "myobject.h"
 
-using namespace v8;
-
 NAN_METHOD(CreateObject) {
   NanScope();
   NanReturnValue(MyObject::NewInstance(args[0]));
@@ -20,14 +18,14 @@ NAN_METHOD(Add) {
   NanReturnValue(NanNew(sum));
 }
 
-void InitAll(Handle<Object> exports) {
+void InitAll(v8::Handle<v8::Object> exports) {
   MyObject::Init();
 
   exports->Set(NanNew("createObject"),
-      NanNew<FunctionTemplate>(CreateObject)->GetFunction());
+      NanNew<v8::FunctionTemplate>(CreateObject)->GetFunction());
 
   exports->Set(NanNew("add"),
-      NanNew<FunctionTemplate>(Add)->GetFunction());
+      NanNew<v8::FunctionTemplate>(Add)->GetFunction());
 }
 
 NODE_MODULE(addon, InitAll)

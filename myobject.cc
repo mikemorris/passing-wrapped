@@ -1,18 +1,16 @@
 #include <node.h>
 #include "myobject.h"
 
-using namespace v8;
-
 MyObject::MyObject() {};
 MyObject::~MyObject() {};
 
-Persistent<Function> MyObject::constructor;
+v8::Persistent<v8::Function> MyObject::constructor;
 
 void MyObject::Init() {
   NanScope();
 
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
+  v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(New);
   tpl->SetClassName(NanNew("MyObject"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
@@ -29,13 +27,13 @@ NAN_METHOD(MyObject::New) {
   NanReturnValue(args.This());
 }
 
-Local<Object> MyObject::NewInstance(Local<Value> arg) {
+v8::Local<v8::Object> MyObject::NewInstance(v8::Local<v8::Value> arg) {
   NanEscapableScope();
 
   const unsigned argc = 1;
-  Local<Value> argv[argc] = { arg };
-  Local<Function> cons = NanNew<Function>(constructor);
-  Local<Object> instance = cons->NewInstance(argc, argv);
+  v8::Local<v8::Value> argv[argc] = { arg };
+  v8::Local<v8::Function> cons = NanNew<v8::Function>(constructor);
+  v8::Local<v8::Object> instance = cons->NewInstance(argc, argv);
 
   return NanEscapeScope(instance);
 }
