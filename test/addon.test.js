@@ -5,16 +5,45 @@
 var test = require('tape');
 var addon = require('../addon.js');
 
-test('addon', function(t) {
-  var obj1 = new addon.MyObject();
-  obj1.set(10);
-
-  var obj2 = new addon.MyObject();
-  obj2.set(20);
-
-  addon.add(obj1, obj2, function(err, result) {
+test('single', function(t) {
+  var obj = new addon.MyObject();
+  obj.set(10);
+  obj.add(1, function(err, result) {
     t.ifError(err);
-    t.equal(result, 30);
+    t.equal(result, 11);
     t.end();
   });
+});
+
+test('multiple', function(t) {
+  var remaining = 5;
+  t.plan(remaining * 2);
+
+  for (var i = 0; i < remaining; i++) {
+    var obj = new addon.MyObject();
+    obj.set(i);
+    obj.add(i, (function(i) {
+      return function(err, result) {
+        t.ifError(err);
+        t.equal(result, i * 2);
+      };
+    })(i));
+  }
+});
+
+test('concurrent', function(t) {
+  var remaining = 5;
+  t.plan(remaining * 3);
+
+  var obj = new addon.MyObject();
+  for (var i = 0; i < remaining; i++) {
+    obj.set(i);
+    obj.add(i, (function(i) {
+      return function(err, result) {
+        t.ifError(err);
+        t.skip(result);
+        t.skip(i * 2);
+      };
+    })(i));
+  }
 });

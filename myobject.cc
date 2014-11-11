@@ -1,5 +1,6 @@
 #include <node.h>
 #include "myobject.h"
+#include "addworker.h"
 
 MyObject::MyObject() {};
 MyObject::~MyObject() {};
@@ -16,6 +17,7 @@ void MyObject::Init(v8::Handle<v8::Object> exports) {
 
   // Prototype
   NODE_SET_PROTOTYPE_METHOD(tpl, "set", Set);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "add", Add);
 
   NanAssignPersistent(constructor, tpl->GetFunction());
 
@@ -27,9 +29,9 @@ NAN_METHOD(MyObject::New) {
   NanScope();
 
   MyObject* obj = new MyObject();
-  obj->Wrap(args.This());
+  obj->Wrap(args.Holder());
 
-  NanReturnValue(args.This());
+  NanReturnValue(args.Holder());
 }
 
 NAN_METHOD(MyObject::NewInstance) {
@@ -52,8 +54,21 @@ NAN_METHOD(MyObject::NewInstance) {
 NAN_METHOD(MyObject::Set) {
   NanScope();
 
-  MyObject* obj = node::ObjectWrap::Unwrap<MyObject>(args.This());
+  MyObject* obj = node::ObjectWrap::Unwrap<MyObject>(args.Holder());
   obj->val_ = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
 
-  NanReturnValue(args.This());
+  NanReturnValue(args.Holder());
 }
+
+NAN_METHOD(MyObject::Add) {
+  NanScope();
+
+  MyObject* obj = node::ObjectWrap::Unwrap<MyObject>(args.Holder());
+  double value = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
+  NanCallback *callback = new NanCallback(args[1].As<v8::Function>());
+
+  NanAsyncQueueWorker(new AddWorker(obj, value, callback));
+
+  NanReturnUndefined();
+}
+

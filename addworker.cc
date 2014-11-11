@@ -1,14 +1,16 @@
 #include "addworker.h"
+#include <unistd.h>
 
-AddWorker::AddWorker(MyObject* obj1, MyObject* obj2, NanCallback *callback)
+AddWorker::AddWorker(MyObject* obj, double value, NanCallback *callback)
   : NanAsyncWorker(callback),
-  obj1_(obj1),
-  obj2_(obj2) {}
+  obj_(obj),
+  value_(value) {}
 
 AddWorker::~AddWorker() {}
 
 void AddWorker::Execute() {
-  sum = obj1_->Val() + obj2_->Val();
+  sleep(value_);
+  sum_ = obj_->Val() + value_;
 }
 
 void AddWorker::HandleOKCallback() {
@@ -16,7 +18,7 @@ void AddWorker::HandleOKCallback() {
 
   v8::Local<v8::Value> argv[] = {
     NanNull(),
-    NanNew(sum)
+    NanNew(sum_)
   };
 
   callback->Call(2, argv);
