@@ -1,5 +1,6 @@
 #include <nan.h>
 #include "myobject.h"
+#include "addworker.h"
 
 NAN_METHOD(Add) {
   NanScope();
@@ -9,8 +10,11 @@ NAN_METHOD(Add) {
   MyObject* obj2 = node::ObjectWrap::Unwrap<MyObject>(
       args[1]->ToObject());
 
-  double sum = obj1->Val() + obj2->Val();
-  NanReturnValue(NanNew(sum));
+  NanCallback *callback = new NanCallback(args[2].As<v8::Function>());
+
+  NanAsyncQueueWorker(new AddWorker(obj1, obj2, callback));
+
+  NanReturnUndefined();
 }
 
 void InitAll(v8::Handle<v8::Object> exports) {
